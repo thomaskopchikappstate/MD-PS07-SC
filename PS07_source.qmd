@@ -1,6 +1,6 @@
 ---
 title: "Problem Set 07"
-author: "Your Name"
+author: "Thomas Kopchik"
 date: last-modified
 date-format: "[Last modified on] MMMM DD, YYYY HH:mm:ss zzz"
 format: 
@@ -178,7 +178,17 @@ Ask two of your classmates what their estimate of $\hat{p}$ was. How do the $\ha
 :::
 
 ::: {.callout-important icon="false" collapse="false" title="Problem 1 Answers"}
--   Delete this and put your text answer here.
+```{r}
+set.seed(0416)
+
+n50_samplepractice <- sample(gss_YEAR$marital, size = 50, replace = FALSE)
+head(n50_samplepractice)
+
+(phat <- mean(n50_samplepractice=="Divorced"))
+
+```
+
+The $\hat{p}$ samples vary slightly between samples.
 :::
 
 ::: {.callout-note icon="false" title="Problem 2"}
@@ -186,7 +196,7 @@ Ask two of your classmates what their estimate of $\hat{p}$ was. How do the $\ha
 :::
 
 ::: {.callout-important icon="false" collapse="false" title="Problem 2 Answers"}
--   Delete this and put your text answer here.
+-   Everyone likely got a different estimate because their seed was personalized to their birthday. This would affect how the samples were chosen.
 :::
 
 ## Estimating $\widehat{SE}$ from a Single Sample
@@ -252,7 +262,7 @@ What is the name of the column that identifies which of the 1000 samples each ro
 :::
 
 ::: {.callout-important icon="false" collapse="false" title="Problem 3 Answers"}
--   Delete this and put your text answer here.
+-   The name of the column that identifies which of the 1000 samples each row is from is `replicate`.
 :::
 
 ::: {.callout-note icon="false" title="Problem 4"}
@@ -260,7 +270,7 @@ What is the sample size $n$ for each of the $1000$ samples we took? (i.e. how ma
 :::
 
 ::: {.callout-important icon="false" collapse="false" title="Problem 4 Answers"}
--   Delete this and put your text answer here.
+-   The sample size $n$ for each of the $1000$ samples taken is 50.
 :::
 
 The following code chunk calculates the sample proportion $\hat{p}$ of people who reported they were divorced for each of the **1000 samples**.
@@ -322,11 +332,17 @@ Based on @fig-n50 and @fig-n50base, what appears to be a very common value of $\
 
 ::: {.callout-important icon="false" collapse="false" title="Problem 5 Answers"}
 ```{r}
-# Type your code and comments below
+mean1k <- p_hat_n50_1000rep |>
+  summarize(mean = mean(p_hat),
+            std_dev = sd(p_hat),
+            one_perc = qnorm(0.01, mean, std_dev),
+            nin_perc = 1 - qnorm(0.99, mean, std_dev))
+
+mean1k
 
 ```
 
--   Delete this and put your text answer here.
+-   An example of a common value of $\hat{p}$ would be `r mean1k$mean`. Some examples of uncommon values (like the 1% and 99% quantiles) would be `r mean1k$one_perc` and `r mean1k$nin_perc`.
 :::
 
 ## Mean and Standard Error of the Sampling Distribution of $\hat{p}$ for $n = 50$
@@ -346,7 +362,7 @@ How do the values computed in the above code chunk compare to the estimates we g
 :::
 
 ::: {.callout-important icon="false" collapse="false" title="Problem 6 Answers"}
--   Delete this and put your text answer here.
+-   Both of the values for the multiple samples are slightly larger than the values for the single sample.
 :::
 
 ::: {.callout-note icon="false" title="Problem 7"}
@@ -355,8 +371,10 @@ Use the `rep_sample_n` function to collect 1000 virtual samples of size $n = 15$
 
 ::: {.callout-important icon="false" collapse="false" title="Problem 7 Answers"}
 ```{r}
-# Type your code and comments inside the code chunk
-
+set.seed(910)
+n15_1000rep <- gss_YEAR |>
+  rep_sample_n(size = 15, reps = 1000)
+head(n15_1000rep)
 ```
 :::
 
@@ -366,8 +384,13 @@ Calculate sample proportion $\hat{p}$ of people who reported they were `Divorced
 
 ::: {.callout-important icon="false" collapse="false" title="Problem 8 Answers"}
 ```{r}
-# Type your code and comments inside the code chunk
+ques8 <- n15_1000rep |>
+  group_by(replicate) |>
+  summarize(divorce_count = sum(marital == "Divorced"),
+            n = n()) |>
+  mutate(p_hat = divorce_count / n)
 
+head(ques8)
 ```
 :::
 
@@ -379,8 +402,8 @@ Visualize the sampling distribution of $\hat{p}$ from your $n = 15$ sampling wit
 ```{r}
 #| label: "fig-n15"
 #| fig-cap: "Simulated sampling distribution of p_hat based on samples of size 15"
-# Type your code and comments inside the code chunk
-
+hist(ques8$p_hat, main = "Sampling distribution of phat based on n = 15",
+      col = "purple2", breaks = 15)
 ```
 :::
 
@@ -390,7 +413,11 @@ Calculate the mean of the $n = 15$ sampling distribution, and the standard error
 
 ::: {.callout-important icon="false" collapse="false" title="Problem 10 Answers"}
 ```{r}
-# Type your code and comments inside the code chunk
+mean1k_15 <- ques8 |>
+  summarize(mean = mean(p_hat),
+            std_dev = sd(p_hat))
+
+mean1k_15
 
 ```
 :::
@@ -400,7 +427,7 @@ How does the standard error of the $n = 15$ sampling distribution compare to the
 :::
 
 ::: {.callout-important icon="false" collapse="false" title="Problem 11 Answers"}
--   Delete this and put your text answer here.
+-   The standard error of the $n = 15$ sampling distribution is greater than the standard error of the $n = 50$ sampling distribution.
 :::
 
 ::: {.callout-note icon="false" title="Problem 12"}
@@ -408,7 +435,7 @@ Explain any observed differences from 11.
 :::
 
 ::: {.callout-important icon="false" collapse="false" title="Problem 12 Answers"}
--   Delete this and put your text answer here.
+-   The histogram for the $n = 15$ sampling distribution is more skewed than the histogram for the $n = 50$ sampling distribution. The mean is more or less the same. The standard error is greater than the $n = 50$ sampling distribution's standard error by approximately `r mean1k_15$mean - mean1k$mean`.
 :::
 
 ::: {.callout-note icon="false" title="Problem 13"}
@@ -417,7 +444,10 @@ Use the `rep_sample_n` function to collect 1000 virtual samples of size $n = 600
 
 ::: {.callout-important icon="false" collapse="false" title="Problem 13 Answers"}
 ```{r}
-# Type your code and comments inside the code chunk
+set.seed(84)
+n600_1000rep <- gss_YEAR |>
+  rep_sample_n(size = 600, reps = 1000)
+head(n15_1000rep)
 
 ```
 :::
@@ -428,8 +458,13 @@ Calculate the proportion $\hat{p}$ of people who reported they were `Divorced`fo
 
 ::: {.callout-important icon="false" collapse="false" title="Problem 14 Answers"}
 ```{r}
-# Type your code and comments inside the code chunk
+ques14 <- n600_1000rep |>
+  group_by(replicate) |>
+  summarize(divorce_count = sum(marital == "Divorced"),
+            n = n()) |>
+  mutate(p_hat = divorce_count / n)
 
+head(ques14)
 ```
 :::
 
@@ -439,7 +474,11 @@ Calculate the mean of the $n = 600$ sampling distribution, and the standard erro
 
 ::: {.callout-important icon="false" collapse="false" title="Problem 15 Answers"}
 ```{r}
-# Type your code and answers below
+mean1k_600 <- ques14 |>
+  summarize(mean = mean(p_hat),
+            std_dev = sd(p_hat))
+
+head(mean1k_600)
 ```
 :::
 
@@ -448,7 +487,7 @@ Was there more **variability** from sample to sample when we took a sample size 
 :::
 
 ::: {.callout-important icon="false" collapse="false" title="Problem 16 Answers"}
--   Delete this and put your text answer here.
+-   There was far more variablility from sample to sample when 50 samples were taken instead of 600. This is shown through the different standard error values; the $n = 600$ standard error is `r mean1k_600$std_dev` while the $n = 50$ standard error is `r mean1k$std_dev`.
 :::
 
 ::: {.callout-note icon="false" title="Problem 17"}
@@ -459,7 +498,8 @@ Which sampling distribution looked more normally distributed (bell shaped and sy
 -   Delete this and put your text answer here.
 
 ```{r, fig.height = 8}
-# Type your code and comments below
+hist(ques14$p_hat, main = "Sampling distribution of phat based on n = 600",
+      col = "pink", breaks = 30)
 
 ```
 :::
@@ -492,7 +532,7 @@ Following the example from the beginning of the Problem Set (roughly line 138), 
 
 ::: {.callout-important icon="false" collapse="false" title="Problem 18 Answers"}
 ```{r, label = "Test2"}
-# Type your code and comments inside the code chunk
+
 
 
 ```
