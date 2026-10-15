@@ -188,7 +188,7 @@ head(n50_samplepractice)
 
 ```
 
-The $\hat{p}$ samples vary slightly between samples.
+-   The $\hat{p}$ estimates vary slightly between samples.
 :::
 
 ::: {.callout-note icon="false" title="Problem 2"}
@@ -532,9 +532,14 @@ Following the example from the beginning of the Problem Set (roughly line 138), 
 
 ::: {.callout-important icon="false" collapse="false" title="Problem 18 Answers"}
 ```{r, label = "Test2"}
+ans18 <- n15_1rep |>
+  summarize(divorce_count = sum(marital == "Divorced"),
+            phat = mean(marital == "Divorced"),
+            n = n()) |>
+  mutate(p_hat = divorce_count / n,
+         se_hat = sqrt(p_hat * (1 - p_hat) / n))
 
-
-
+ans18
 ```
 :::
 
@@ -553,11 +558,18 @@ Fill in the Markdown table below with all the standard errors you computed for t
 ::: {.callout-important icon="false" collapse="false" title="Problem 19 Answers"}
 | Sample size n | SE via sd of sampling distribution | SE via one sample and formula |
 |------------------|-----------------------------|-------------------------|
-| 15            | x                                  | a                             |
-| 50            | y                                  | b                             |
+| 15            | 0.095                             | 0.114                          |
+| 50            | 0.052                             | 0.045                          |
 
 ```{r, label = "test3"}
-# Your code below
+ans19 <- n50_1rep |>
+  summarize(divorce_count = sum(marital == "Divorced"),
+            phat = mean(marital == "Divorced"),
+            n = n()) |>
+  mutate(p_hat = divorce_count / n,
+         se_hat = sqrt(p_hat * (1 - p_hat) / n))
+
+ans19
 
 ```
 :::
@@ -567,7 +579,7 @@ Based on what you observed for 19, **IF** you collected a single sample from 600
 :::
 
 ::: {.callout-important icon="false" collapse="false" title="Problem 20 Answers"}
--   Delete this and put your text answer here.
+-   I think that if I collected a single sample from 600 respondents, the standard error would still be smaller than the one calculated for $n = 15$. I think this because, while the values vary between single and multiple samples in the table, they only seem to vary by 0.01 or 0.02 at most, which would not make up for the gap between the standard errors for each of the sizes.
 :::
 
 # Turning in Your Work
